@@ -126,6 +126,31 @@ where
   milestone.update(db).await
 }
 
+/// Writes the manual position of one node on the milestone graph.
+///
+/// Deliberately narrow: it touches the two layout columns and nothing else,
+/// so two administrators dragging different nodes can never overwrite each
+/// other's work. `game_id` is part of the filter, so an administrator of one
+/// game cannot move a node belonging to another one. Returns the number of
+/// rows actually touched, which is `0` when the id is not part of the game.
+pub async fn update_layout<C>(
+  db: &C, game_id: i64, id: i64, layout_col: Option<i32>, layout_row: Option<i32>,
+) -> Result<u64, DbErr>
+where
+  C: ConnectionTrait, {
+  Entity::update_many()
+    .set(ActiveModel {
+      layout_col: ActiveValue::Set(layout_col),
+      layout_row: ActiveValue::Set(layout_row),
+      ..Default::default()
+    })
+    .filter(Column::Id.eq(id))
+    .filter(Column::GameId.eq(game_id))
+    .exec(db)
+    .await
+    .map(|result| result.rows_affected)
+}
+
 pub async fn delete<C>(db: &C, id: i64) -> Result<(), DbErr>
 where
   C: ConnectionTrait, {
