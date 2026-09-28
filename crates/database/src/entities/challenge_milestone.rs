@@ -46,6 +46,15 @@ pub struct Model {
     message = "milestone bonus score must be between 0 and 10000"
   ))]
   pub bonus_score: i32,
+  /// Manual position of this node on the milestone graph, in grid units:
+  /// the web side renders `x = COLUMN_START + col * COLUMN_PITCH` and
+  /// `y = row * GRID_Y`. `None` means the node has never been placed by hand,
+  /// so the automatic layout owns it — keeping both columns nullable is what
+  /// makes an untouched game render exactly as it did before this feature.
+  #[serde(default = "Option::default")]
+  pub layout_col: Option<i32>,
+  #[serde(default = "Option::default")]
+  pub layout_row: Option<i32>,
   #[validate(
     custom(function = "non_blank", message = "milestone name is required"),
     length(max = 127, message = "milestone name must be at most 127 characters")
@@ -223,6 +232,8 @@ mod tests {
       unlock_limit: 0,
       name: format!("milestone-{id}"),
       description: String::new(),
+      layout_col: None,
+      layout_row: None,
     }
   }
 

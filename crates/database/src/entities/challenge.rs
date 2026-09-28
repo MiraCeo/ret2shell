@@ -126,6 +126,15 @@ pub struct Model {
     message = "challenge unlock limit must be between 0 and 1000"
   ))]
   pub unlock_limit: i32,
+  /// Manual position of this node on the milestone graph, in grid units:
+  /// the web side renders `x = COLUMN_START + col * COLUMN_PITCH` and
+  /// `y = row * GRID_Y`. `None` means the node has never been placed by hand,
+  /// so the automatic layout owns it — keeping both columns nullable is what
+  /// makes an untouched game render exactly as it did before this feature.
+  #[serde(default = "Option::default")]
+  pub layout_col: Option<i32>,
+  #[serde(default = "Option::default")]
+  pub layout_row: Option<i32>,
   #[serde(default = "Option::default")]
   #[validate(length(
     max = "crate::validation::AVATAR_MAX_LEN",
